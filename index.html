@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Free Private File Converter — No Upload Required</title>
+<meta name="description" content="Convert files privately in your browser. PDF, images, HEIC, WebP, SVG — your files never leave your device. 100% free, no sign-up.">
+<meta name="keywords" content="file converter, HEIC to JPG, PDF to image, image to PDF, WebP converter, privacy, no upload, free">
+<link rel="canonical" href="https://purplefbihaze-cpu.github.io/file-converter/">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--primary:#6366f1;--primary-dark:#4f46e5;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--success:#22c55e;--drop-bg:#eef2ff;--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.container{max-width:800px;margin:0 auto;padding:24px 16px}
+header{text-align:center;margin-bottom:32px}
+h1{font-size:32px;font-weight:800;margin-bottom:4px}
+h1 span{background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--muted);font-size:15px;margin-bottom:12px}
+.trust{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#16a34a;padding:6px 16px;border-radius:99px;font-size:13px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+/* Drop Zone */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--primary);background:var(--drop-bg)}
+.drop-zone .icon{font-size:48px;margin-bottom:12px}
+.drop-zone p{color:var(--muted);margin-bottom:8px}
+.drop-zone .browse{color:var(--primary);font-weight:600;text-decoration:underline;cursor:pointer}
+input[type=file]{display:none}
+
+/* File List */
+.file-list{margin-top:16px}
+.file-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:10px;margin-bottom:8px}
+.file-item .name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+.file-item .size{color:var(--muted);font-size:12px}
+.file-item .format-select{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff}
+.file-item .remove{background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;padding:4px 8px}
+
+/* Convert Button */
+.convert-btn{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .1s,box-shadow .2s;margin-top:16px}
+.convert-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.4)}
+.convert-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* Progress */
+.progress-wrap{margin-top:16px;display:none}
+.progress-bar{height:8px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#a855f7);border-radius:99px;transition:width .3s;width:0}
+.progress-text{text-align:center;font-size:13px;color:var(--muted);margin-top:6px}
+
+/* Results */
+.results{margin-top:16px;display:none}
+.result-item{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f0fdf4;border-radius:10px;margin-bottom:6px}
+.result-item .name{font-weight:600;font-size:14px;color:#16a34a}
+.dl-btn{padding:6px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.dl-all-btn{width:100%;padding:12px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+
+/* Formats */
+.formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
+.format-tag{padding:10px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;text-align:center;font-size:13px}
+.format-tag .arrow{color:var(--primary);font-weight:700}
+
+/* Footer */
+footer{text-align:center;padding:32px 0 16px;color:var(--muted);font-size:12px}
+footer a{color:var(--primary)}
+
+/* How it works */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.step{text-align:center;padding:16px}
+.step .num{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-bottom:8px}
+.step h3{font-size:14px;margin-bottom:4px}
+.step p{font-size:12px;color:var(--muted)}
+
+@media(max-width:600px){
+  h1{font-size:24px}
+  .steps{grid-template-columns:1fr}
+  .formats{grid-template-columns:repeat(2,1fr)}
+  .file-item{flex-wrap:wrap;gap:8px}
+  .file-item .name{max-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🔒 <span>Private File Converter</span></h1>
+    <p class="subtitle">Convert files directly in your browser. Nothing gets uploaded. Ever.</p>
+    <div class="trust">🛡️ Your files never leave your device</div>
+  </header>
+
+  <div class="card">
+    <div class="drop-zone" id="dropZone">
+      <div class="icon">📁</div>
+      <p>Drag & drop your files here</p>
+      <span class="browse">or click to browse</span>
+      <input type="file" id="fileInput" multiple accept="image/*,.pdf,.heic,.heif,.svg,.webp">
+    </div>
+
+    <div class="file-list" id="fileList"></div>
+
+    <button class="convert-btn" id="convertBtn" disabled>Convert Files</button>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <p class="progress-text" id="progressText">Converting...</p>
+    </div>
+
+    <div class="results" id="results">
+      <div id="resultList"></div>
+      <button class="dl-all-btn" id="dlAllBtn" style="display:none">📦 Download All as ZIP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Supported Conversions</h2>
+    <div class="formats">
+      <div class="format-tag">JPG/PNG <span class="arrow">→</span> PDF</div>
+      <div class="format-tag">PDF <span class="arrow">→</span> PNG/JPG</div>
+      <div class="format-tag">HEIC <span class="arrow">→</span> JPG</div>
+      <div class="format-tag">WebP <span class="arrow">↔</span> PNG/JPG</div>
+      <div class="format-tag">SVG <span class="arrow">→</span> PNG</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>Drop Files</h3><p>Select or drag your files into the converter</p></div>
+      <div class="step"><div class="num">2</div><h3>Choose Format</h3><p>Pick your desired output format</p></div>
+      <div class="step"><div class="num">3</div><h3>Download</h3><p>Get your converted files instantly</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#eef2ff,#faf5ff);border:none">
+    <h2>🔐 Why Private?</h2>
+    <p style="color:var(--muted);font-size:14px;margin-top:8px">
+      The FBI recently warned about <strong>online file converters stealing personal data</strong>.
+      Our converter runs <strong>100% in your browser</strong> using JavaScript. Your files are never
+      uploaded to any server. No data collection, no accounts, no tracking. Open source and verifiable.
+    </p>
+  </div>
+
+  <footer>
+    <p>Built with privacy in mind. <a href="https://github.com/purplefbihaze-cpu/file-converter" target="_blank">View Source on GitHub</a></p>
+    <p style="margin-top:4px">Conversions are processed locally using your browser's built-in capabilities.</p>
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const files = [];
+const converted = [];
+
+// Format detection & output options
+const FORMAT_MAP = {
+  'image/jpeg':     [{ext:'pdf',label:'PDF'}],
+  'image/png':      [{ext:'pdf',label:'PDF'},{ext:'jpg',label:'JPG'}],
+  'image/webp':     [{ext:'png',label:'PNG'},{ext:'jpg',label:'JPG'},{ext:'pdf',label:'PDF'}],
+  'image/svg+xml':  [{ext:'png',label:'PNG'}],
+  'image/heic':     [{ext:'jpg',label:'JPG'}],
+  'image/heif':     [{ext:'jpg',label:'JPG'}],
+  'application/pdf':[{ext:'png',label:'PNG'},{ext:'jpg',label:'JPG'}],
+};
+
+function detectType(file) {
+  if (file.type && FORMAT_MAP[file.type]) return file.type;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const map = {heic:'image/heic',heif:'image/heif',svg:'image/svg+xml',webp:'image/webp',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',pdf:'application/pdf'};
+  return map[ext] || file.type;
+}
+
+function formatSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function renderFiles() {
+  const list = $('#fileList');
+  list.innerHTML = '';
+  files.forEach((f, i) => {
+    const type = detectType(f);
+    const opts = FORMAT_MAP[type] || [];
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `
+      <span class="name" title="${f.name}">${f.name}</span>
+      <span class="size">${formatSize(f.size)}</span>
+      <select class="format-select" data-idx="${i}">
+        ${opts.map(o => `<option value="${o.ext}">${o.label}</option>`).join('')}
+        ${opts.length === 0 ? '<option disabled>Unsupported</option>' : ''}
+      </select>
+      <button class="remove" data-idx="${i}">✕</button>
+    `;
+    list.appendChild(div);
+  });
+  $('#convertBtn').disabled = files.length === 0 || files.every(f => !(FORMAT_MAP[detectType(f)]));
+}
+
+// Drop zone
+const dz = $('#dropZone');
+dz.addEventListener('click', () => $('#fileInput').click());
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
+$('#fileInput').addEventListener('change', e => addFiles(e.target.files));
+
+$('#fileList').addEventListener('click', e => {
+  if (e.target.classList.contains('remove')) {
+    files.splice(+e.target.dataset.idx, 1);
+    renderFiles();
+  }
+});
+
+function addFiles(fl) {
+  for (const f of fl) files.push(f);
+  renderFiles();
+}
+
+// Conversion
+$('#convertBtn').addEventListener('click', startConvert);
+
+async function startConvert() {
+  converted.length = 0;
+  const pw = $('#progressWrap'); pw.style.display = 'block';
+  const pf = $('#progressFill'); const pt = $('#progressText');
+  const btn = $('#convertBtn'); btn.disabled = true;
+  const res = $('#results'); res.style.display = 'none';
+
+  const selects = document.querySelectorAll('.format-select');
+  const total = files.length;
+
+  for (let i = 0; i < total; i++) {
+    const f = files[i];
+    const targetExt = selects[i]?.value;
+    if (!targetExt) continue;
+    pt.textContent = `Converting ${i+1}/${total}: ${f.name}`;
+    pf.style.width = ((i / total) * 100) + '%';
+
+    try {
+      const type = detectType(f);
+      let result;
+
+      if (type === 'application/pdf') {
+        result = await pdfToImage(f, targetExt);
+      } else if (type === 'image/heic' || type === 'image/heif') {
+        result = await heicToJpg(f);
+      } else if (targetExt === 'pdf') {
+        result = await imageToPdf(f);
+      } else {
+        result = await imageToImage(f, targetExt);
+      }
+
+      if (Array.isArray(result)) {
+        converted.push(...result);
+      } else {
+        converted.push(result);
+      }
+    } catch (err) {
+      console.error('Conversion error:', err);
+      converted.push({ name: f.name + ' (ERROR)', blob: null, error: err.message });
+    }
+  }
+
+  pf.style.width = '100%';
+  pt.textContent = 'Done!';
+  btn.disabled = false;
+  showResults();
+}
+
+function showResults() {
+  const res = $('#results'); res.style.display = 'block';
+  const list = $('#resultList'); list.innerHTML = '';
+
+  converted.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'result-item';
+    if (c.error) {
+      div.innerHTML = `<span class="name" style="color:#ef4444">❌ ${c.name}: ${c.error}</span>`;
+    } else {
+      div.innerHTML = `<span class="name">✅ ${c.name}</span><button class="dl-btn" data-idx="${i}">Download</button>`;
+    }
+    list.appendChild(div);
+  });
+
+  const validResults = converted.filter(c => c.blob);
+  if (validResults.length > 1) {
+    $('#dlAllBtn').style.display = 'block';
+  }
+
+  list.addEventListener('click', e => {
+    if (e.target.classList.contains('dl-btn')) {
+      const c = converted[+e.target.dataset.idx];
+      if (c.blob) downloadBlob(c.blob, c.name);
+    }
+  });
+}
+
+$('#dlAllBtn').addEventListener('click', async () => {
+  const zip = new JSZip();
+  converted.filter(c => c.blob).forEach(c => zip.file(c.name, c.blob));
+  const blob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(blob, 'converted-files.zip');
+});
+
+function downloadBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// --- Converters ---
+
+// Image (JPG/PNG/WebP/SVG) → PDF
+async function imageToPdf(file) {
+  const img = await loadImage(file);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: img.width > img.height ? 'l' : 'p', unit: 'px', format: [img.width, img.height] });
+  pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+  const blob = pdf.output('blob');
+  return { name: file.name.replace(/\.[^.]+$/, '.pdf'), blob };
+}
+
+// Image → Image (WebP→PNG, WebP→JPG, PNG→JPG etc.)
+async function imageToImage(file, targetExt) {
+  const img = await loadImage(file);
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width; canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+  if (targetExt === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  ctx.drawImage(img, 0, 0);
+  const mime = targetExt === 'jpg' ? 'image/jpeg' : 'image/png';
+  const blob = await new Promise(r => canvas.toBlob(r, mime, 0.92));
+  return { name: file.name.replace(/\.[^.]+$/, '.' + targetExt), blob };
+}
+
+// PDF → Images (one per page)
+async function pdfToImage(file, targetExt) {
+  const arrayBuf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
+  const results = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const scale = 2;
+    const vp = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width; canvas.height = vp.height;
+    const ctx = canvas.getContext('2d');
+    if (targetExt === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    const mime = targetExt === 'jpg' ? 'image/jpeg' : 'image/png';
+    const blob = await new Promise(r => canvas.toBlob(r, mime, 0.92));
+    const base = file.name.replace(/\.[^.]+$/, '');
+    results.push({ name: `${base}_page${p}.${targetExt}`, blob });
+  }
+  return results;
+}
+
+// HEIC → JPG (via libheif-js)
+async function heicToJpg(file) {
+  // Lazy-load libheif
+  if (!window.libheif) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif/libheif.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  const decoder = new libheif.HeifDecoder();
+  const buf = await file.arrayBuffer();
+  const data = decoder.decode(new Uint8Array(buf));
+  if (!data || !data.length) throw new Error('Could not decode HEIC');
+  const img = data[0];
+  const w = img.get_width(), h = img.get_height();
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(w, h);
+  await new Promise((resolve, reject) => {
+    img.display(imageData, (d) => { if (!d) reject(new Error('HEIC display failed')); else resolve(); });
+  });
+  ctx.putImageData(imageData, 0, 0);
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+  return { name: file.name.replace(/\.[^.]+$/, '.jpg'), blob };
+}
+
+// Helper: load image file into HTMLImageElement
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(img.src); resolve(img); };
+    img.onerror = () => reject(new Error('Failed to load image: ' + file.name));
+    if (file.type === 'image/svg+xml') {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const blob = new Blob([reader.result], { type: 'image/svg+xml' });
+        img.src = URL.createObjectURL(blob);
+      };
+      reader.readAsText(file);
+    } else {
+      img.src = URL.createObjectURL(file);
+    }
+  });
+}
+</script>
+<!-- pdf.js loaded last (largest) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs" type="module"></script>
+<script type="module">
+import * as pdfjsModule from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+window.pdfjsLib = pdfjsModule;
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+</script>
+</body>
+</html>
