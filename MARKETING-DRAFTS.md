@@ -10,9 +10,9 @@ It converts between JPG, PNG, WebP, PDF, HEIC, and SVG — all processing happen
 
 Why? The FBI literally warned people about fake file converter sites being used for malware. So I figured: what if the files just... never leave your computer?
 
-🔗 https://purplefbihaze-cpu.github.io/file-converter/
+🔗 https://purpledoubled.github.io/file-converter/
 
-Open source: https://github.com/purplefbihaze-cpu/file-converter
+Open source: https://github.com/PurpleDoubleD/file-converter
 
 ---
 
@@ -37,20 +37,20 @@ Built this over a weekend. It converts between common file formats (PDF, JPG, PN
 
 Would love feedback on the UX and what formats you'd want added.
 
-🔗 https://purplefbihaze-cpu.github.io/file-converter/
+🔗 https://purpledoubled.github.io/file-converter/
 
 ---
 
 ## Hacker News: Show HN
 **Title:** Show HN: Privacy-first file converter – runs entirely in your browser, no uploads
 
-**URL:** https://purplefbihaze-cpu.github.io/file-converter/
+**URL:** https://purpledoubled.github.io/file-converter/
 
 **Comment:**
 Built this after the FBI warning about malicious file converter sites. All processing is client-side using pdf.js and Canvas API — files never leave your browser.
 
 Supports: PDF↔PNG/JPG, JPG↔PNG/WebP, HEIC→JPG, SVG→PNG/JPG, WebP↔everything.
 
-Source: https://github.com/purplefbihaze-cpu/file-converter
+Source: https://github.com/PurpleDoubleD/file-converter
 
 No frameworks, no build step, ~400 lines of vanilla JS. Hosted on GitHub Pages.
