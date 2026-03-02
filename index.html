@@ -124,11 +124,11 @@ footer a{color:var(--primary)}
   <div class="card">
     <h2>Supported Conversions</h2>
     <div class="formats">
-      <div class="format-tag">JPG/PNG <span class="arrow">→</span> PDF</div>
+      <div class="format-tag">JPG <span class="arrow">↔</span> PNG/WebP/PDF</div>
       <div class="format-tag">PDF <span class="arrow">→</span> PNG/JPG</div>
       <div class="format-tag">HEIC <span class="arrow">→</span> JPG</div>
-      <div class="format-tag">WebP <span class="arrow">↔</span> PNG/JPG</div>
-      <div class="format-tag">SVG <span class="arrow">→</span> PNG</div>
+      <div class="format-tag">WebP <span class="arrow">↔</span> PNG/JPG/PDF</div>
+      <div class="format-tag">SVG <span class="arrow">→</span> PNG/JPG</div>
     </div>
   </div>
 
@@ -163,10 +163,10 @@ const converted = [];
 
 // Format detection & output options
 const FORMAT_MAP = {
-  'image/jpeg':     [{ext:'pdf',label:'PDF'}],
-  'image/png':      [{ext:'pdf',label:'PDF'},{ext:'jpg',label:'JPG'}],
+  'image/jpeg':     [{ext:'png',label:'PNG'},{ext:'pdf',label:'PDF'},{ext:'webp',label:'WebP'}],
+  'image/png':      [{ext:'jpg',label:'JPG'},{ext:'pdf',label:'PDF'},{ext:'webp',label:'WebP'}],
   'image/webp':     [{ext:'png',label:'PNG'},{ext:'jpg',label:'JPG'},{ext:'pdf',label:'PDF'}],
-  'image/svg+xml':  [{ext:'png',label:'PNG'}],
+  'image/svg+xml':  [{ext:'png',label:'PNG'},{ext:'jpg',label:'JPG'}],
   'image/heic':     [{ext:'jpg',label:'JPG'}],
   'image/heif':     [{ext:'jpg',label:'JPG'}],
   'application/pdf':[{ext:'png',label:'PNG'},{ext:'jpg',label:'JPG'}],
@@ -341,7 +341,7 @@ async function imageToImage(file, targetExt) {
   const ctx = canvas.getContext('2d');
   if (targetExt === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
   ctx.drawImage(img, 0, 0);
-  const mime = targetExt === 'jpg' ? 'image/jpeg' : 'image/png';
+  const mime = targetExt === 'jpg' ? 'image/jpeg' : targetExt === 'webp' ? 'image/webp' : 'image/png';
   const blob = await new Promise(r => canvas.toBlob(r, mime, 0.92));
   return { name: file.name.replace(/\.[^.]+$/, '.' + targetExt), blob };
 }
