@@ -2,7 +2,7 @@
 
 **Convert files directly in your browser. Nothing gets uploaded. Ever.**
 
-🌐 **[Use it now →](https://purplefbihaze-cpu.github.io/file-converter/)**
+🌐 **[Use it now →](https://purpledoubled.github.io/file-converter/)**
 
 ## Why?
 
