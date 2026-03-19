@@ -33,9 +33,9 @@ Tagline: "Your files never leave your browser."
 - Show conversion count (social proof)
 - Dark/light mode
 
-## Monetization (later)
-- Free: all 5 conversions, single file
-- Premium ($2.99 one-time): batch convert, extra formats (DOCX, XLSX)
+## Open Source
+- 100% free, unlimited conversions
+- MIT License
 
 ## SEO
 - Title: "Free Private File Converter — No Upload Required"

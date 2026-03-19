@@ -37,7 +37,7 @@ The FBI [warned](https://www.ic3.gov/PSA/2025/PSA250313) about malicious online 
 - 📦 **Batch convert** — multiple files → ZIP download
 - 📱 **Mobile-friendly** — works on any device
 - ⚡ **Instant** — no waiting for server round-trips
-- 🆓 **Free** — 5 conversions/day free, unlimited for $2.99 one-time
+- 🆓 **Free & Open Source** — unlimited conversions, forever
 
 ## 🛠 Tech
 

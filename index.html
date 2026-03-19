@@ -228,63 +228,12 @@ function addFiles(fl) {
   renderFiles();
 }
 
-// Freemium: 5 free conversions per day
-const FREE_LIMIT = 5;
-function getUsageToday() {
-  const key = 'fc_usage_' + new Date().toISOString().slice(0, 10);
-  return parseInt(localStorage.getItem(key) || '0');
-}
-function addUsage(n) {
-  const key = 'fc_usage_' + new Date().toISOString().slice(0, 10);
-  localStorage.setItem(key, getUsageToday() + n);
-}
-function isPro() {
-  return localStorage.getItem('fc_pro') === '1';
-}
-function showUpgradeModal() {
-  let m = document.getElementById('upgradeModal');
-  if (!m) {
-    m = document.createElement('div');
-    m.id = 'upgradeModal';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999';
-    m.innerHTML = `<div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-      <div style="font-size:48px;margin-bottom:12px">🚀</div>
-      <h2 style="margin-bottom:8px">Daily Limit Reached</h2>
-      <p style="color:#64748b;margin-bottom:20px">You've used your ${FREE_LIMIT} free conversions today. Upgrade for unlimited conversions — one-time payment, no subscription.</p>
-      <a href="https://hoshi1.gumroad.com" target="_blank" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;margin-bottom:12px">Unlock Unlimited — $2.99</a>
-      <br><button onclick="document.getElementById('upgradeModal').remove()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;margin-top:8px">Maybe later</button>
-      <br><input type="text" id="proKeyInput" placeholder="Have a license key?" style="margin-top:12px;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;width:80%">
-      <button onclick="if(document.getElementById('proKeyInput').value.length>5){localStorage.setItem('fc_pro','1');document.getElementById('upgradeModal').remove();}" style="padding:8px 12px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-size:13px;margin-left:4px;cursor:pointer">Activate</button>
-    </div>`;
-    document.body.appendChild(m);
-  }
-}
-function updateUsageBar() {
-  let bar = document.getElementById('usageBar');
-  if (!bar) {
-    bar = document.createElement('div');
-    bar.id = 'usageBar';
-    bar.style.cssText = 'text-align:center;font-size:13px;color:#64748b;margin-top:8px';
-    $('#convertBtn').parentNode.insertBefore(bar, $('#convertBtn').nextSibling);
-  }
-  if (isPro()) {
-    bar.innerHTML = '✨ <b>Pro</b> — Unlimited conversions';
-  } else {
-    const used = getUsageToday();
-    const left = Math.max(0, FREE_LIMIT - used);
-    bar.innerHTML = `${left}/${FREE_LIMIT} free conversions left today`;
-  }
-}
+// Open Source — unlimited conversions for everyone
 
 // Conversion
 $('#convertBtn').addEventListener('click', startConvert);
-updateUsageBar();
 
 async function startConvert() {
-  if (!isPro() && getUsageToday() >= FREE_LIMIT) {
-    showUpgradeModal();
-    return;
-  }
   converted.length = 0;
   const pw = $('#progressWrap'); pw.style.display = 'block';
   const pf = $('#progressFill'); const pt = $('#progressText');
@@ -329,8 +278,6 @@ async function startConvert() {
   pf.style.width = '100%';
   pt.textContent = 'Done!';
   btn.disabled = false;
-  addUsage(total);
-  updateUsageBar();
   showResults();
 }
 
